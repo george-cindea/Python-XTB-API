@@ -550,7 +550,7 @@ class XTB:
         
     def connect(self):
         try:
-            self.ws=websocket.create_connection("wss://ws.xtb.com/demo")
+            self.ws=websocket.create_connection("wss://ws.xtb.com/real")
             #Success
             return True
         except:
