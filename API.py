@@ -1,7 +1,7 @@
-import websocket
 import json
-import openpyxl
 from datetime import datetime, timedelta
+import websocket
+import openpyxl
 
 class XTB:
 	__version__ = "1.0"
