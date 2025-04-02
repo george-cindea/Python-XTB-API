@@ -417,6 +417,12 @@ class XTB:
 		return False, 0
 
 	def check_trade(self, order):
+		'''
+		ERROR 	0	error
+		PENDING	1	pending
+		ACCEPTED	3	The transaction has been executed successfully
+		REJECTED	4	The transaction has been rejected
+		'''
 		trade ={
 			"command": "tradeTransactionStatus",
 			"arguments": {
@@ -428,12 +434,6 @@ class XTB:
 		result = json.loads(result)
 		status = result["returnData"]["requestStatus"]
 		return status
-	'''
-	ERROR 	0	error
-	PENDING	1	pending
-	ACCEPTED	3	The transaction has been executed successfully
-	REJECTED	4	The transaction has been rejected
-	'''
 
 	def get_history(self, start=0, end=0, days=0, hours=0, minutes=0):
 		if start!=0:
