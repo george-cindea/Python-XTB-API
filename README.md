@@ -12,7 +12,7 @@ https://www.python.org/downloads/
 For installing the other modules you're going to need pip installed in your system, if you don't have it yet, you can find it here:
 https://pypi.org/project/pip/
 
-If you already have pip, then you can install the modules either by executing the "install.bat" script or by using the following command line commands:
+If you already have pip, then you can install the modules by using the following command line commands:
 
 ```
 pip install websocket-client==1.4.1
