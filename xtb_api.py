@@ -6,9 +6,9 @@ import openpyxl
 class XTB:
 	__version__ = "1.0"
 
-	def __init__(self, ID, PSW):
-		self.ID = ID
-		self.PSW = PSW
+	def __init__(self, user_id, user_pswd):
+		self.user_id = user_id
+		self.user_pswd = user_pswd
 		self.ws = 0
 		self.exec_start = self.get_time()
 		self.connect()
@@ -20,8 +20,8 @@ class XTB:
 		login ={
 			"command": "login",
 			"arguments": {
-				"userId": self.ID,
-				"password": self.PSW
+				"userId": self.user_id,
+				"password": self.user_pswd
 			}
 		}
 		login_json = json.dumps(login)
@@ -53,7 +53,7 @@ class XTB:
 			#Error
 			return False
 
-	def get_AllSymbols(self):
+	def get_all_symbols(self):
 		allsymbols ={
 			"command": "getAllSymbols"
 		}
@@ -62,7 +62,7 @@ class XTB:
 		result = json.loads(result)
 		return result
 
-	def get_Candles(self, period, symbol, days=0, hours=0, minutes=0, qty_candles=0):
+	def get_candles(self, period, symbol, days=0, hours=0, minutes=0, qty_candles=0):
 		if period=="M1":
 			minutes+=qty_candles
 			period=1
@@ -92,8 +92,8 @@ class XTB:
 			period=43200
 		if qty_candles!=0:
 			minutes = minutes*2
-		start = self.get_ServerTime() - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
-		CHART_LAST_INFO_RECORD ={
+		start = self.get_server_time() - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
+		chart_last_info_record ={
 			"period": period,
 			"start": start,
 			"symbol": symbol
@@ -101,7 +101,7 @@ class XTB:
 		candles ={
 			"command": "getChartLastRequest",
 			"arguments": {
-				"info": CHART_LAST_INFO_RECORD
+				"info": chart_last_info_record
 			}
 		}
 		candles_json = json.dumps(candles)
@@ -160,7 +160,7 @@ class XTB:
 		vol     Volume in lots
 		'''
 
-	def get_CandlesRange(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
+	def get_candles_range(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
 		if period=="M1":
 			period=1
 		elif period=="M5":
@@ -197,7 +197,7 @@ class XTB:
 		start = self.time_conversion(start)
 		end = self.time_conversion(end)
 
-		CHART_RANGE_INFO_RECORD ={
+		chart_range_info_record ={
 			"end": end,
 			"period": period,
 			"start": start,
@@ -207,7 +207,7 @@ class XTB:
 		candles ={
 			"command": "getChartRangeRequest",
 			"arguments": {
-				"info": CHART_RANGE_INFO_RECORD
+				"info": chart_range_info_record
 			}
 		}
 		candles_json = json.dumps(candles)
@@ -265,7 +265,7 @@ class XTB:
 		vol     Volume in lots
 		'''
 
-	def get_ServerTime(self):
+	def get_server_time(self):
 		time ={
 			"command": "getServerTime"
 		}
@@ -275,7 +275,7 @@ class XTB:
 		time = result["returnData"]["time"]
 		return time
 
-	def get_Balance(self):
+	def get_balance(self):
 		balance ={
 			"command": "getMarginLevel"
 		}
@@ -285,7 +285,7 @@ class XTB:
 		balance = result["returnData"]["balance"]
 		return balance
 
-	def get_Margin(self, symbol, volume):
+	def get_margin(self, symbol, volume):
 		margin ={
 			"command": "getMarginTrade",
 			"arguments": {
@@ -299,7 +299,7 @@ class XTB:
 		margin = result["returnData"]["margin"]
 		return margin
 
-	def get_Profit(self, open_price, close_price, transaction_type, symbol, volume):
+	def get_profit(self, open_price, close_price, transaction_type, symbol, volume):
 		if transaction_type==1:
 			#buy
 			cmd = 0
@@ -322,7 +322,7 @@ class XTB:
 		profit = result["returnData"]["profit"]
 		return profit
 
-	def get_Symbol(self, symbol):
+	def get_symbol(self, symbol):
 		symbol ={
 			"command": "getSymbol",
 			"arguments": {
@@ -335,7 +335,7 @@ class XTB:
 		symbol = result["returnData"]
 		return symbol
 
-	def make_Trade(
+	def make_trade(
 		self,
 		symbol,
 		cmd,
@@ -349,16 +349,16 @@ class XTB:
 		hours=0,
 		minutes=0
 	):
-		price = self.get_Candles("M1",symbol,qty_candles=1)
+		price = self.get_candles("M1",symbol,qty_candles=1)
 		price = price[1]["open"]+price[1]["close"]
 
 		delay = self.to_milliseconds(days=days, hours=hours, minutes=minutes)
 		if delay==0:
-			expiration = self.get_ServerTime() + self.to_milliseconds(minutes=1)
+			expiration = self.get_server_time() + self.to_milliseconds(minutes=1)
 		else:
-			expiration = self.get_ServerTime() + delay
+			expiration = self.get_server_time() + delay
 
-		TRADE_TRANS_INFO = {
+		trade_trans_info = {
 			"cmd": cmd,
 			"customComment": comment,
 			"expiration": expiration,
@@ -374,7 +374,7 @@ class XTB:
 		trade = {
 			"command": "tradeTransaction",
 			"arguments": {
-				"tradeTransInfo": TRADE_TRANS_INFO
+				"tradeTransInfo": trade_trans_info
 			}
 		}
 		trade_json = json.dumps(trade)
@@ -387,7 +387,7 @@ class XTB:
 			#error
 			return False, 0
 		"""
-		format TRADE_TRANS_INFO:
+		format trade_trans_info:
 		cmd	        Number	            Operation code
 		customComment	String	            The value the customer may provide in order to retrieve it later.
 		expiration	Time	            Pending order expiration time
@@ -418,7 +418,7 @@ class XTB:
 		DELETE	    4	    order delete, only used in the tradeTransaction  command
 		"""
 
-	def check_Trade(self, order):
+	def check_trade(self, order):
 		trade ={
 			"command": "tradeTransactionStatus",
 			"arguments": {
@@ -437,7 +437,7 @@ class XTB:
 	REJECTED	4	The transaction has been rejected
 	'''
 
-	def get_History(self, start=0, end=0, days=0, hours=0, minutes=0):
+	def get_history(self, start=0, end=0, days=0, hours=0, minutes=0):
 		if start!=0:
 			start = self.time_conversion(start)
 		if end!=0:
@@ -445,7 +445,7 @@ class XTB:
 
 		if days!=0 or hours!=0 or minutes!=0:
 			if end==0:
-				end = self.get_ServerTime()
+				end = self.get_server_time()
 			start = end - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
 
 		history ={
@@ -555,7 +555,7 @@ class XTB:
 		self.exec_start = self.get_time()
 
 	def is_open(self, symbol):
-		candles = self.get_Candles("M1", symbol, qty_candles=1)
+		candles = self.get_candles("M1", symbol, qty_candles=1)
 		if len(candles)==1:
 			return False
 		else:
