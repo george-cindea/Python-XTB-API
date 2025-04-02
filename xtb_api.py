@@ -499,7 +499,7 @@ class XTB:
 			for cell in rows:
 				if i==0 and cell.value==None:
 					return temp1
-				elif i==0 and cell.value!=None:
+				if i==0 and cell.value!=None:
 					temp["datetime"] = cell.value
 				elif i==1 and cell.value!=None:
 					temp["open"] = cell.value
@@ -556,8 +556,7 @@ class XTB:
 		candles = self.get_candles("M1", symbol, qty_candles=1)
 		if len(candles)==1:
 			return False
-		else:
-			return True
+		return True
 
 	################ WEBSOCKETS ####################
 
