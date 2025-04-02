@@ -1,4 +1,6 @@
-import websocket, json, openpyxl
+import websocket
+import json
+import openpyxl
 from datetime import datetime, timedelta
 
 class XTB:
