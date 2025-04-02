@@ -333,7 +333,20 @@ class XTB:
 		symbol = result["returnData"]
 		return symbol
 
-	def make_Trade(self, symbol, cmd, transaction_type, volume, comment="", order=0, sl=0, tp=0, days=0, hours=0, minutes=0):
+	def make_Trade(
+		self,
+		symbol,
+		cmd,
+		transaction_type,
+		volume,
+		comment="",
+		order=0,
+		sl=0,
+		tp=0,
+		days=0,
+		hours=0,
+		minutes=0
+	):
 		price = self.get_Candles("M1",symbol,qty_candles=1)
 		price = price[1]["open"]+price[1]["close"]
 
