@@ -404,7 +404,8 @@ class XTB:
 		SELL_LIMIT	3	sell limit
 		BUY_STOP	4	buy stop
 		SELL_STOP	5	sell stop
-		BALANCE	        6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations (profit>0 for deposit, profit<0 for withdrawal).
+		BALANCE	        6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations
+						(profit>0 for deposit, profit<0 for withdrawal).
 		CREDIT	        7	Read only
 
 		values transaction_type:
