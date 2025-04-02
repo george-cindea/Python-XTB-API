@@ -32,9 +32,8 @@ class XTB:
 		if str(status)=="True":
 			#Success
 			return True
-		else:
-			#Error
-			return False
+		#Error
+		return False
 
 	def logout(self):
 		logout ={
@@ -49,9 +48,8 @@ class XTB:
 		if str(status)=="True":
 			#Success
 			return True
-		else:
-			#Error
-			return False
+		#Error
+		return False
 
 	def get_all_symbols(self):
 		allsymbols ={
@@ -383,9 +381,8 @@ class XTB:
 		if result["status"]==True:
 			#success
 			return True, result["returnData"]["order"]
-		else:
-			#error
-			return False, 0
+		#error
+		return False, 0
 		"""
 		format trade_trans_info:
 		cmd	        Number	            Operation code
