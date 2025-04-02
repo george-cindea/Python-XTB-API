@@ -61,6 +61,31 @@ class XTB:
 		return result
 
 	def get_candles(self, period, symbol, days=0, hours=0, minutes=0, qty_candles=0):
+		'''
+		LIMITS:
+		PERIOD_M1 --- <0-1) month, i.e. one month time
+		PERIOD_M30 --- <1-7) month, six months time
+		PERIOD_H4 --- <7-13) month, six months time
+		PERIOD_D1 --- 13 month, and earlier on
+		##############################################
+		PERIOD_M1	1	1 minute
+		PERIOD_M5	5	5 minutes
+		PERIOD_M15	15	15 minutes
+		PERIOD_M30	30	30 minutes
+		PERIOD_H1	60	60 minutes (1 hour)
+		PERIOD_H4	240	240 minutes (4 hours)
+		PERIOD_D1	1440	1440 minutes (1 day)
+		PERIOD_W1	10080	10080 minutes (1 week)
+		PERIOD_MN1	43200	43200 minutes (30 days)
+		##############################################
+		close   Value of close price (shift from open price)
+		ctm     Candle start time in CET / CEST time zone (see Daylight Saving Time)
+		ctmString     String representation of the 'ctm' field
+		high    Highest value in the given period (shift from open price)
+		low     Lowest value in the given period (shift from open price)
+		open    Open price (in base currency * 10 to the power of digits)
+		vol     Volume in lots
+		'''
 		if period=="M1":
 			minutes+=qty_candles
 			period=1
@@ -132,6 +157,8 @@ class XTB:
 		if len(candles)==1:
 			return False
 		return candles
+
+	def get_candles_range(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
 		'''
 		LIMITS:
 		PERIOD_M1 --- <0-1) month, i.e. one month time
@@ -157,8 +184,6 @@ class XTB:
 		open    Open price (in base currency * 10 to the power of digits)
 		vol     Volume in lots
 		'''
-
-	def get_candles_range(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
 		if period=="M1":
 			period=1
 		elif period=="M5":
@@ -237,31 +262,6 @@ class XTB:
 		if len(candles)==1:
 			return False
 		return candles
-		'''
-		LIMITS:
-		PERIOD_M1 --- <0-1) month, i.e. one month time
-		PERIOD_M30 --- <1-7) month, six months time
-		PERIOD_H4 --- <7-13) month, six months time
-		PERIOD_D1 --- 13 month, and earlier on
-		##############################################
-		PERIOD_M1	1	1 minute
-		PERIOD_M5	5	5 minutes
-		PERIOD_M15	15	15 minutes
-		PERIOD_M30	30	30 minutes
-		PERIOD_H1	60	60 minutes (1 hour)
-		PERIOD_H4	240	240 minutes (4 hours)
-		PERIOD_D1	1440	1440 minutes (1 day)
-		PERIOD_W1	10080	10080 minutes (1 week)
-		PERIOD_MN1	43200	43200 minutes (30 days)
-		##############################################
-		close   Value of close price (shift from open price)
-		ctm     Candle start time in CET / CEST time zone (see Daylight Saving Time)
-		ctmString     String representation of the 'ctm' field
-		high    Highest value in the given period (shift from open price)
-		low     Lowest value in the given period (shift from open price)
-		open    Open price (in base currency * 10 to the power of digits)
-		vol     Volume in lots
-		'''
 
 	def get_server_time(self):
 		time ={
@@ -347,6 +347,38 @@ class XTB:
 		hours=0,
 		minutes=0
 	):
+		"""
+		format trade_trans_info:
+		cmd	        Number	            Operation code
+		customComment	String	            The value the customer may provide in order to retrieve it later.
+		expiration	Time	            Pending order expiration time
+		offset	        Number	            Trailing offset
+		order	        Number	            0 or position number for closing/modifications
+		price	        Floating number	    Trade price
+		sl	        Floating number	    Stop loss
+		symbol	        String	            Trade symbol
+		tp	        Floating number	    Take profit
+		type	        Number	            Trade transaction type
+		volume	        Floating number	    Trade volume
+
+		values cmd:
+		BUY	        0	buy
+		SELL	        1	sell
+		BUY_LIMIT	2	buy limit
+		SELL_LIMIT	3	sell limit
+		BUY_STOP	4	buy stop
+		SELL_STOP	5	sell stop
+		BALANCE	        6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations
+						(profit>0 for deposit, profit<0 for withdrawal).
+		CREDIT	        7	Read only
+
+		values transaction_type:
+		OPEN	    0	    order open, used for opening orders
+		PENDING	    1	    order pending, only used in the streaming getTrades  command
+		CLOSE	    2	    order close
+		MODIFY	    3	    order modify, only used in the tradeTransaction  command
+		DELETE	    4	    order delete, only used in the tradeTransaction  command
+		"""
 		price = self.get_candles("M1",symbol,qty_candles=1)
 		price = price[1]["open"]+price[1]["close"]
 
@@ -383,38 +415,6 @@ class XTB:
 			return True, result["returnData"]["order"]
 		#error
 		return False, 0
-		"""
-		format trade_trans_info:
-		cmd	        Number	            Operation code
-		customComment	String	            The value the customer may provide in order to retrieve it later.
-		expiration	Time	            Pending order expiration time
-		offset	        Number	            Trailing offset
-		order	        Number	            0 or position number for closing/modifications
-		price	        Floating number	    Trade price
-		sl	        Floating number	    Stop loss
-		symbol	        String	            Trade symbol
-		tp	        Floating number	    Take profit
-		type	        Number	            Trade transaction type
-		volume	        Floating number	    Trade volume
-
-		values cmd:
-		BUY	        0	buy
-		SELL	        1	sell
-		BUY_LIMIT	2	buy limit
-		SELL_LIMIT	3	sell limit
-		BUY_STOP	4	buy stop
-		SELL_STOP	5	sell stop
-		BALANCE	        6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations
-						(profit>0 for deposit, profit<0 for withdrawal).
-		CREDIT	        7	Read only
-
-		values transaction_type:
-		OPEN	    0	    order open, used for opening orders
-		PENDING	    1	    order pending, only used in the streaming getTrades  command
-		CLOSE	    2	    order close
-		MODIFY	    3	    order modify, only used in the tradeTransaction  command
-		DELETE	    4	    order delete, only used in the tradeTransaction  command
-		"""
 
 	def check_trade(self, order):
 		trade ={
