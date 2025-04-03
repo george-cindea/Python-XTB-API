@@ -5,7 +5,8 @@ import websocket
 import openpyxl
 
 class XTB:
-	__version__ = "1.0"
+	"""Class XTB that contains all the methods neccessary to use the api"""
+	__version__ = "2.0"
 
 	def __init__(self, user_id, user_pswd):
 		self.user_id = user_id
