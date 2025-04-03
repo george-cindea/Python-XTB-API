@@ -1,3 +1,4 @@
+"""A wrapper for the xtb api"""
 import json
 from datetime import datetime, timedelta
 import websocket
