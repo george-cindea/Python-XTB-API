@@ -468,7 +468,7 @@ class XTB:
 		trade_json = json.dumps(trade)
 		result = self.send(trade_json)
 		result = json.loads(result)
-		if result["status"]==True:
+		if result["status"] is True: #if checking for value True
 			#success
 			return True, result["returnData"]["order"]
 		#error
@@ -545,7 +545,7 @@ class XTB:
 		Returns: True if success, False if not.
 		"""
 		self.exec_start = self.get_time()
-		if candles==False:
+		if not candles: # test for falsiness
 			print("Error: No Candles!")
 			#error
 			return False
@@ -572,17 +572,17 @@ class XTB:
 			temp={}
 			i=0
 			for cell in rows:
-				if i==0 and cell.value==None:
+				if i==0 and cell.value is None:
 					return temp1
-				if i==0 and cell.value!=None:
+				if i==0 and cell.value is not None:
 					temp["datetime"] = cell.value
-				elif i==1 and cell.value!=None:
+				elif i==1 and cell.value is not None:
 					temp["open"] = cell.value
-				elif i==2 and cell.value!=None:
+				elif i==2 and cell.value is not None:
 					temp["close"] = cell.value
-				elif i==3 and cell.value!=None:
+				elif i==3 and cell.value is not None:
 					temp["high"] = cell.value
-				elif i==4 and cell.value!=None:
+				elif i==4 and cell.value is not None:
 					temp["low"] = cell.value
 				i+=1
 			temp1.append(temp)
