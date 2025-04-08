@@ -19,6 +19,11 @@ class XTB:
 	################ XTB ####################
 
 	def login(self):
+		"""
+		Login method to login to XTB API.
+
+		Returns: True is successful or False if not
+		"""
 		login ={
 			"command": "login",
 			"arguments": {
@@ -38,6 +43,10 @@ class XTB:
 		return False
 
 	def logout(self):
+		"""Logout method to logout of XTB API.
+
+		Returns: True is successful or False if not
+		"""
 		logout ={
 			"command": "logout"
 		}
@@ -54,6 +63,10 @@ class XTB:
 		return False
 
 	def get_all_symbols(self):
+		"""Method that executes getAllSymbols command.
+
+		Returns: json object with all symbols and their data.
+		"""
 		allsymbols ={
 			"command": "getAllSymbols"
 		}
@@ -63,31 +76,37 @@ class XTB:
 		return result
 
 	def get_candles(self, period, symbol, days=0, hours=0, minutes=0, qty_candles=0):
-		'''
-		LIMITS:
-		PERIOD_M1 --- <0-1) month, i.e. one month time
-		PERIOD_M30 --- <1-7) month, six months time
-		PERIOD_H4 --- <7-13) month, six months time
-		PERIOD_D1 --- 13 month, and earlier on
-		##############################################
-		PERIOD_M1	1	1 minute
-		PERIOD_M5	5	5 minutes
-		PERIOD_M15	15	15 minutes
-		PERIOD_M30	30	30 minutes
-		PERIOD_H1	60	60 minutes (1 hour)
-		PERIOD_H4	240	240 minutes (4 hours)
-		PERIOD_D1	1440	1440 minutes (1 day)
-		PERIOD_W1	10080	10080 minutes (1 week)
-		PERIOD_MN1	43200	43200 minutes (30 days)
-		##############################################
-		close   Value of close price (shift from open price)
-		ctm     Candle start time in CET / CEST time zone (see Daylight Saving Time)
-		ctmString     String representation of the 'ctm' field
-		high    Highest value in the given period (shift from open price)
-		low     Lowest value in the given period (shift from open price)
-		open    Open price (in base currency * 10 to the power of digits)
-		vol     Volume in lots
-		'''
+		"""Method that gets all candles data for the ticker and period requested.
+
+		Args:
+			period - what is the period you want data for
+				LIMITS:
+				PERIOD_M1 --- <0-1) month, i.e. one month time
+				PERIOD_M30 --- <1-7) month, six months time
+				PERIOD_H4 --- <7-13) month, six months time
+				PERIOD_D1 --- 13 month, and earlier on
+				##############################################
+				PERIOD_M1	1	1 minute
+				PERIOD_M5	5	5 minutes
+				PERIOD_M15	15	15 minutes
+				PERIOD_M30	30	30 minutes
+				PERIOD_H1	60	60 minutes (1 hour)
+				PERIOD_H4	240	240 minutes (4 hours)
+				PERIOD_D1	1440	1440 minutes (1 day)
+				PERIOD_W1	10080	10080 minutes (1 week)
+				PERIOD_MN1	43200	43200 minutes (30 days)
+				##############################################
+				close		Value of close price (shift from open price)
+				ctm			Candle start time in CET / CEST time zone (see Daylight Saving Time)
+				ctmString	String representation of the 'ctm' field
+				high		Highest value in the given period (shift from open price)
+				low			Lowest value in the given period (shift from open price)
+				open		Open price (in base currency * 10 to the power of digits)
+				vol			Volume in lots
+			symbol - ticker you want data for
+
+		Returns: candles
+		"""
 		if period=="M1":
 			minutes+=qty_candles
 			period=1
@@ -161,31 +180,37 @@ class XTB:
 		return candles
 
 	def get_candles_range(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
-		'''
-		LIMITS:
-		PERIOD_M1 --- <0-1) month, i.e. one month time
-		PERIOD_M30 --- <1-7) month, six months time
-		PERIOD_H4 --- <7-13) month, six months time
-		PERIOD_D1 --- 13 month, and earlier on
-		##############################################
-		PERIOD_M1	1	1 minute
-		PERIOD_M5	5	5 minutes
-		PERIOD_M15	15	15 minutes
-		PERIOD_M30	30	30 minutes
-		PERIOD_H1	60	60 minutes (1 hour)
-		PERIOD_H4	240	240 minutes (4 hours)
-		PERIOD_D1	1440	1440 minutes (1 day)
-		PERIOD_W1	10080	10080 minutes (1 week)
-		PERIOD_MN1	43200	43200 minutes (30 days)
-		##############################################
-		close   Value of close price (shift from open price)
-		ctm     Candle start time in CET / CEST time zone (see Daylight Saving Time)
-		ctmString     String representation of the 'ctm' field
-		high    Highest value in the given period (shift from open price)
-		low     Lowest value in the given period (shift from open price)
-		open    Open price (in base currency * 10 to the power of digits)
-		vol     Volume in lots
-		'''
+		"""Method to get all candles data between a range.
+
+		Args:
+			period - what is the period you want data for
+				LIMITS:
+				PERIOD_M1 --- <0-1) month, i.e. one month time
+				PERIOD_M30 --- <1-7) month, six months time
+				PERIOD_H4 --- <7-13) month, six months time
+				PERIOD_D1 --- 13 month, and earlier on
+				##############################################
+				PERIOD_M1	1	1 minute
+				PERIOD_M5	5	5 minutes
+				PERIOD_M15	15	15 minutes
+				PERIOD_M30	30	30 minutes
+				PERIOD_H1	60	60 minutes (1 hour)
+				PERIOD_H4	240	240 minutes (4 hours)
+				PERIOD_D1	1440	1440 minutes (1 day)
+				PERIOD_W1	10080	10080 minutes (1 week)
+				PERIOD_MN1	43200	43200 minutes (30 days)
+				##############################################
+				close		Value of close price (shift from open price)
+				ctm			Candle start time in CET / CEST time zone (see Daylight Saving Time)
+				ctmString	String representation of the 'ctm' field
+				high		Highest value in the given period (shift from open price)
+				low			Lowest value in the given period (shift from open price)
+				open		Open price (in base currency * 10 to the power of digits)
+				vol			Volume in lots
+			symbol - ticker you want data for
+
+		Returns: candles
+		"""
 		if period=="M1":
 			period=1
 		elif period=="M5":
@@ -266,6 +291,10 @@ class XTB:
 		return candles
 
 	def get_server_time(self):
+		"""Method that runs command getSeverTime.
+
+		Returns: time
+		"""
 		time ={
 			"command": "getServerTime"
 		}
@@ -276,6 +305,10 @@ class XTB:
 		return time
 
 	def get_balance(self):
+		"""Method that runs command getMarginLevel in order to get the account balance.
+
+		Returns: balance
+		"""
 		balance ={
 			"command": "getMarginLevel"
 		}
@@ -286,6 +319,11 @@ class XTB:
 		return balance
 
 	def get_margin(self, symbol, volume):
+		"""Method that runs command getMarginTrade.
+		Args: volume
+
+		Returns: margin
+		"""
 		margin ={
 			"command": "getMarginTrade",
 			"arguments": {
@@ -300,6 +338,16 @@ class XTB:
 		return margin
 
 	def get_profit(self, open_price, close_price, transaction_type, symbol, volume):
+		"""Method that runs command getProfitCalculation.
+		Args:
+			open_price			- open price of the trade
+			close_price			- close price of the trade
+			transaction_type	- buy/sell
+			symbol: ticker
+			volume
+
+		Returns: profit
+		"""
 		if transaction_type==1:
 			#buy
 			cmd = 0
@@ -323,6 +371,12 @@ class XTB:
 		return profit
 
 	def get_symbol(self, symbol):
+		"""Method that runs command getSymbol in order to get all data for a particular ticker.
+		Args:
+			symbol - Ticker you request data for.
+
+		Returns: symbol
+		"""
 		symbol ={
 			"command": "getSymbol",
 			"arguments": {
@@ -350,36 +404,38 @@ class XTB:
 		minutes=0
 	):
 		"""
-		format trade_trans_info:
-		cmd	        Number	            Operation code
-		customComment	String	            The value the customer may provide in order to retrieve it later.
-		expiration	Time	            Pending order expiration time
-		offset	        Number	            Trailing offset
-		order	        Number	            0 or position number for closing/modifications
-		price	        Floating number	    Trade price
-		sl	        Floating number	    Stop loss
-		symbol	        String	            Trade symbol
-		tp	        Floating number	    Take profit
-		type	        Number	            Trade transaction type
-		volume	        Floating number	    Trade volume
+		Method that runs command tradeTransaction in order to make a trade request.
+		Args:
+			format trade_trans_info:
+				cmd				Number		Operation code
+				customComment	String		The value the customer may provide in order to retrieve it later.
+				expiration		Time		Pending order expiration time
+				offset			Number		Trailing offset
+				order			Number		0 or position number for closing/modifications
+				price			Float		Trade price
+				sl				Float		Stop loss
+				symbol			String		Trade symbol
+				tp				Floati		Take profit
+				type			Number		Trade transaction type
+				volume			Float		Trade volume
 
-		values cmd:
-		BUY	        0	buy
-		SELL	        1	sell
-		BUY_LIMIT	2	buy limit
-		SELL_LIMIT	3	sell limit
-		BUY_STOP	4	buy stop
-		SELL_STOP	5	sell stop
-		BALANCE	        6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations
-						(profit>0 for deposit, profit<0 for withdrawal).
-		CREDIT	        7	Read only
+			values cmd:
+				BUY			0	buy
+				SELL		1	sell
+				BUY_LIMIT	2	buy limit
+				SELL_LIMIT	3	sell limit
+				BUY_STOP	4	buy stop
+				SELL_STOP	5	sell stop
+				BALANCE		6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations
+								(profit>0 for deposit, profit<0 for withdrawal).
+				CREDIT		7	Read only
 
-		values transaction_type:
-		OPEN	    0	    order open, used for opening orders
-		PENDING	    1	    order pending, only used in the streaming getTrades  command
-		CLOSE	    2	    order close
-		MODIFY	    3	    order modify, only used in the tradeTransaction  command
-		DELETE	    4	    order delete, only used in the tradeTransaction  command
+			values transaction_type:
+				OPEN		0	order open, used for opening orders
+				PENDING		1	order pending, only used in the streaming getTrades  command
+				CLOSE		2	order close
+				MODIFY		3	order modify, only used in the tradeTransaction  command
+				DELETE		4	order delete, only used in the tradeTransaction  command
 		"""
 		price = self.get_candles("M1",symbol,qty_candles=1)
 		price = price[1]["open"]+price[1]["close"]
@@ -419,12 +475,15 @@ class XTB:
 		return False, 0
 
 	def check_trade(self, order):
-		'''
-		ERROR 	0	error
-		PENDING	1	pending
-		ACCEPTED	3	The transaction has been executed successfully
-		REJECTED	4	The transaction has been rejected
-		'''
+		"""Method that runs command tradeTransactionStatus.
+
+		Returns: 
+			status:
+				ERROR		0	error
+				PENDING		1	pending
+				ACCEPTED	3	The transaction has been executed successfully
+				REJECTED	4	The transaction has been rejected
+		"""
 		trade ={
 			"command": "tradeTransactionStatus",
 			"arguments": {
@@ -438,6 +497,10 @@ class XTB:
 		return status
 
 	def get_history(self, start=0, end=0, days=0, hours=0, minutes=0):
+		"""Method that runs command getTradesHistory.
+
+		Returns: history
+		"""
 		if start!=0:
 			start = self.time_conversion(start)
 		if end!=0:
@@ -462,6 +525,10 @@ class XTB:
 		return history
 
 	def ping(self):
+		"""Method that runs command ping.
+
+		Returns: status result
+		"""
 		ping ={
 			"command": "ping"
 		}
@@ -473,6 +540,10 @@ class XTB:
 	################ EXCEL ####################
 
 	def candles_to_excel(self, candles, address, name):
+		"""Method that writes candle data to excel.
+
+		Returns: True if success, False if not.
+		"""
 		self.exec_start = self.get_time()
 		if candles==False:
 			print("Error: No Candles!")
@@ -492,6 +563,8 @@ class XTB:
 			return False
 
 	def get_candles_from_excel(self, address, name):
+		"""Method that gets candles data from excel.
+		"""
 		temp1=[]
 		wb = openpyxl.load_workbook(address+name)
 		wsp = wb.active
@@ -517,15 +590,27 @@ class XTB:
 	################ TIME/DATE/CONVERSIONS ####################
 
 	def get_time(self):
+		"""Method that gets current time in a specific format.
+
+		Returns: time
+		"""
 		time = datetime.today().strftime('%m/%d/%Y %H:%M:%S%f')
 		time = datetime.strptime(time, '%m/%d/%Y %H:%M:%S%f')
 		return time
 
 	def to_milliseconds(self, days=0, hours=0, minutes=0):
+		"""Method that gets time in milliseconds.
+
+		Returns: milliseconds
+		"""
 		milliseconds = (days*24*60*60*1000)+(hours*60*60*1000)+(minutes*60*1000)
 		return milliseconds
 
 	def time_conversion(self, date):
+		"""Method that converts time and date to seconds.
+
+		Returns: time
+		"""
 		start = "01/01/1970 00:00:00"
 		start = datetime.strptime(start, '%m/%d/%Y %H:%M:%S')
 		date = datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
@@ -545,6 +630,8 @@ class XTB:
 	################ CHECKS ####################
 
 	def is_on(self):
+		"""Method that checks if ??? is on.
+		"""
 		temp1 = self.exec_start
 		temp2 = self.get_time()
 		temp = temp2 - temp1
@@ -555,6 +642,12 @@ class XTB:
 		self.exec_start = self.get_time()
 
 	def is_open(self, symbol):
+		"""Method that checks if market is open.
+		Args:
+			symbol - ticker to run the check against
+
+		Returns: True if successful, False if not
+		"""
 		candles = self.get_candles("M1", symbol, qty_candles=1)
 		if len(candles)==1:
 			return False
@@ -563,6 +656,10 @@ class XTB:
 	################ WEBSOCKETS ####################
 
 	def connect(self):
+		"""Method that connects to the websocket.
+
+		Returns: True if successful, False if not
+		"""
 		try:
 			#self.ws=websocket.create_connection("wss://ws.xtb.com/demo")
 			self.ws=websocket.create_connection("wss://ws.xapi.pro/demo")
@@ -573,6 +670,10 @@ class XTB:
 			return False
 
 	def disconnect(self):
+		"""Method that disconnects to the websocket.
+
+		Returns: True if successful, False if not
+		"""
 		try:
 			self.ws.close()
 			#Success
@@ -581,6 +682,10 @@ class XTB:
 			return False
 
 	def send(self, msg):
+		"""Method that sends a message to the websocket.
+
+		Returns: result from websocket
+		"""
 		self.is_on()
 		self.ws.send(msg)
 		result = self.ws.recv()
