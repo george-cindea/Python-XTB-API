@@ -75,7 +75,7 @@ class XTB:
 		result = json.loads(result)
 		return result
 
-	def get_candles(self, period: str, symbol: str, timeframe: dict = None, qty_candles: int = 0):
+	def get_candles(self, period, symbol, timeframe = None, qty_candles = 0):
 		"""Get candle data for a symbol and specific period.
 
 		Args:
@@ -88,38 +88,35 @@ class XTB:
 		"""
 
 		timeframe = timeframe or {}
-		days = timeframe.get("days", 0)
-		hours = timeframe.get("hours", 0)
-		minutes = timeframe.get("minutes", 0)
-		period_map = {
-			"M1": 1,
-			"M5": 5,
-			"M15": 15,
-			"M30": 30,
-			"H1": 60,
-			"H4": 240,
-			"D1": 1440,
-			"W1": 10080,
-			"MN1": 43200,
-		}
-
-		if period not in period_map:
-			raise ValueError(f"Unsupported period: {period}")
-
-		period_minutes = period_map[period]
-		extra_minutes = qty_candles * period_minutes * 2 if qty_candles else period_minutes
-		total_minutes = minutes + extra_minutes
+		period_minutes = self._resolve_period_minutes(period)
+		minutes = self._resolve_start_from_qty_or_days(
+			timeframe = timeframe,
+			period_minutes = period_minutes,
+			qty_candles = qty_candles
+		)
 
 		start_timestamp = self.get_server_time() - self.to_milliseconds(
-			days=days,
-			hours=hours,
-			minutes=total_minutes
+			days=timeframe.get("days", 0),
+			hours=timeframe.get("hours", 0),
+			minutes=minutes
 		)
 
 		payload = self._prepare_candle_payload(symbol, period_minutes, start_timestamp)
 		response_data = json.loads(self.send(json.dumps(payload)))
 
 		return self._parse_candle_response(response_data, qty_candles)
+
+	def _resolve_start_from_qty_or_days(self, timeframe, period_minutes, qty_candles):
+		"""Calculate extra minutes to look back based on quantity or provided minutes/hours."""
+		base_minutes = timeframe.get("minutes", 0)
+		base_hours = timeframe.get("hours", 0)
+
+		additional_minutes = qty_candles * period_minutes if qty_candles else 0
+
+		if qty_candles:
+			additional_minutes *= 2
+
+		return base_minutes + (base_hours * 60) + additional_minutes
 
 	def _prepare_candle_payload(self, symbol, period, start):
 		"""Helper method that prepares candle payload."""
@@ -156,7 +153,7 @@ class XTB:
 
 		return candles
 
-	def get_candles_range(self, period: str, symbol: str, timeframe: dict = None, qty_candles: int = 0):
+	def get_candles_range(self, period, symbol, timeframe = None, qty_candles = 0):
 		"""Get candle data for a symbol between a start and end period.
 
 		Args:
@@ -168,10 +165,26 @@ class XTB:
 		Returns: list[dict] or bool: Candle data, or False if none found.
 		"""
 		timeframe = timeframe or {}
-		start = timeframe.get("start", 0)
-		end = timeframe.get("end", 0)
-		days = timeframe.get("days", 0)
+		period_minutes = self._resolve_period_minutes(period)
 
+		start, end = self._resolve_time_range(
+			timeframe = timeframe,
+			period_minutes = period_minutes,
+			qty_candles = qty_candles
+		)
+
+		payload = self._prepare_chart_range_payload(
+			symbol = symbol,
+			period = period_minutes,
+			start = self.time_conversion(start),
+			end = self.time_conversion(end)
+		)
+
+		response_data = json.loads(self.send(json.dumps(payload)))
+		return self._parse_candle_response(response_data, qty_candles)
+
+	def _resolve_period_minutes(self, period):
+		"""Helper method to resolve the period."""
 		period_map = {
 			"M1": 1,
 			"M5": 5,
@@ -183,31 +196,34 @@ class XTB:
 			"W1": 10080,
 			"MN1": 43200,
 		}
-
 		if period not in period_map:
 			raise ValueError(f"Unsupported period: {period}")
+		return period_map[period]
 
-		period_minutes = period_map[period]
+	def _resolve_time_range(self, timeframe, period_minutes, qty_candles):
+		"""Helper method to get time range."""
+		start = timeframe.get("start", 0)
+		end = timeframe.get("end", 0)
+		days = timeframe.get("days", 0)
 
 		if end == 0:
-			end = self.get_time().strftime('%m/%d/%Y %H:%M:%S')
+			end_dt = self.get_time()
+			end_str = end_dt.strftime('%m/%d/%Y %H:%M:%S')
+		else:
+			end_str = end
 
 		if start == 0:
-			end_dt = datetime.strptime(end, '%m/%d/%Y %H:%M:%S')
+			end_dt = datetime.strptime(end_str, '%m/%d/%Y %H:%M:%S')
 			if qty_candles == 0:
 				start_dt = end_dt - timedelta(days=days)
 			else:
-				total_minutes = period_minutes * qty_candles
-				start_dt = end_dt - timedelta(minutes=total_minutes)
-			start = start_dt.strftime('%m/%d/%Y %H:%M:%S')
+				start_dt = end_dt - timedelta(minutes=period_minutes * qty_candles)
+			start_str = start_dt.strftime('%m/%d/%Y %H:%M:%S')
+		else:
+			start_str = start
 
-		start_ts = self.time_conversion(start)
-		end_ts = self.time_conversion(end)
+		return start_str, end_str
 
-		payload = self._prepare_chart_range_payload(symbol, period_minutes, start_ts, end_ts)
-		response_data = json.loads(self.send(json.dumps(payload)))
-
-		return self._parse_candle_response(response_data, qty_candles)
 
 	def _prepare_chart_range_payload(self, symbol, period, start, end):
 		"""Helper method that prepares candle payload."""
