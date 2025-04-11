@@ -107,7 +107,10 @@ class XTB:
 			raise ValueError(f"Unsupported period: {period}")
 
 		period_minutes = period_map[period]
-		minutes += qty_candles * period_minutes * 2 if qty_candles else minutes += period_minutes
+		if qty_candles:
+			minutes += qty_candles * period_minutes * 2 
+		else: 
+			minutes += period_minutes
 
 		start_timestamp = self.get_server_time() - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
 
