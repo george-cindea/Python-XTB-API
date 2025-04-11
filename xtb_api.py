@@ -107,29 +107,37 @@ class XTB:
 			raise ValueError(f"Unsupported period: {period}")
 
 		period_minutes = period_map[period]
-		if qty_candles:
-			minutes += qty_candles * period_minutes * 2 
-		else: 
-			minutes += period_minutes
+		extra_minutes = qty_candles * period_minutes * 2 if qty_candles else period_minutes
+		total_minutes = minutes + extra_minutes
 
-		start_timestamp = self.get_server_time() - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
+		start_timestamp = self.get_server_time() - self.to_milliseconds(
+			days=days,
+			hours=hours,
+			minutes=minutes
+		)
 
-		payload = {
+		payload = self._prepare_candle_payload(symbol, period_minutes, start_timestamp)
+		response_data = json.loads(self.send(json.dumps(payload)))
+
+		return self._parse_candle_response(response_data, qty_candles)
+
+	def _prepare_candle_payload(self, symbol, period, start):
+		"""Helper method that prepares candle payload."""
+		return {
 			"command": "getChartLastRequest",
 			"arguments": {
 				"info": {
-					"period": period_minutes,
-					"start": start_timestamp,
+					"period": period,
+					"start": start,
 					"symbol": symbol
 				}
 			}
 		}
 
-		response = self.send(json.dumps(payload))
-		response_data = json.loads(response)
-
-		rate_infos = response_data.get("returnData", {}).get("rateInfos", [])
-		digits = response_data.get("returnData", {}).get("digits", 5)
+	def _parse_candle_response(self, data, qty_candles):
+		"""Helper method that parses candle data."""
+		rate_infos = data.get("returnData", {}).get("rateInfos", [])
+		digits = data.get("returnData", {}).get("digits", 5)
 
 		if not rate_infos:
 			return False
