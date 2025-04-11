@@ -156,116 +156,73 @@ class XTB:
 
 		return candles
 
-	def get_candles_range(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
-		"""Method to get all candles data between a range.
+	def get_candles_range(self, period: str, symbol: str, timefram: dict = None, qty_candles: int = 0):
+		"""Get candle data for a symbol between a start and end period.
 
 		Args:
-			period - what is the period you want data for
-				LIMITS:
-				PERIOD_M1 --- <0-1) month, i.e. one month time
-				PERIOD_M30 --- <1-7) month, six months time
-				PERIOD_H4 --- <7-13) month, six months time
-				PERIOD_D1 --- 13 month, and earlier on
-				##############################################
-				PERIOD_M1	1	1 minute
-				PERIOD_M5	5	5 minutes
-				PERIOD_M15	15	15 minutes
-				PERIOD_M30	30	30 minutes
-				PERIOD_H1	60	60 minutes (1 hour)
-				PERIOD_H4	240	240 minutes (4 hours)
-				PERIOD_D1	1440	1440 minutes (1 day)
-				PERIOD_W1	10080	10080 minutes (1 week)
-				PERIOD_MN1	43200	43200 minutes (30 days)
-				##############################################
-				close		Value of close price (shift from open price)
-				ctm			Candle start time in CET / CEST time zone (see Daylight Saving Time)
-				ctmString	String representation of the 'ctm' field
-				high		Highest value in the given period (shift from open price)
-				low			Lowest value in the given period (shift from open price)
-				open		Open price (in base currency * 10 to the power of digits)
-				vol			Volume in lots
-			symbol - ticker you want data for
+			period (str): Timeframe string line 'M1', 'H1', 'D1', etc.
+			symbol (str): Ticker/Symbol to retrieve candles for.
+			timeframe (dict): Optional. Dict with keys 'start', 'end', 'days'.
+			qty_candles (int): Number of candles to retrieve. 0 = fetch all.
 
-		Returns: candles
+		Returns: list[dict] or bool: Candle data, or False if none found.
 		"""
-		if period=="M1":
-			period=1
-		elif period=="M5":
-			period=5
-		elif period=="M15":
-			period=15
-		elif period=="M30":
-			period=30
-		elif period=="H1":
-			period=60
-		elif period=="H4":
-			period=240
-		elif period=="D1":
-			period=1440
-		elif period=="W1":
-			period=10080
-		elif period=="MN1":
-			period=43200
+		timeframe = timeframe or {}
+		start = timeframe.get("start", 0)
+		end = timeframe.get("end", 0)
+		days = timeframe.get("days", 0)
 
-		if end==0:
-			end = self.get_time()
-			end = end.strftime('%m/%d/%Y %H:%M:%S')
-			if start==0:
-				if qty_candles==0:
-					temp = datetime.strptime(end, '%m/%d/%Y %H:%M:%S')
-					start = temp - timedelta(days=days)
-					start = start.strftime("%m/%d/%Y %H:%M:%S")
-				else:
-					start = datetime.strptime(end, '%m/%d/%Y %H:%M:%S')
-					minutes = period*qty_candles
-					start = start - timedelta(minutes=minutes)
-					start = start.strftime("%m/%d/%Y %H:%M:%S")
-
-		start = self.time_conversion(start)
-		end = self.time_conversion(end)
-
-		chart_range_info_record ={
-			"end": end,
-			"period": period,
-			"start": start,
-			"symbol": symbol,
-			"ticks": 0
+		period_map = {
+			"M1": 1,
+			"M5": 5,
+			"M15": 15,
+			"M30": 30,
+			"H1": 60,
+			"H4": 240,
+			"D1": 1440,
+			"W1": 10080,
+			"MN1": 43200,
 		}
-		candles ={
+
+		if period not in period_map:
+			raise ValueError(f"Unsupported period: {period}")
+
+		period_minutes = period_map[period]
+
+		if end == 0:
+			end = self.get_time().strftime('%m/%d/%Y %H:%M:%S')
+
+		if start == 0:
+			end_dt = datetime.strptime(end, '%m/%d/%Y %H:%M:%S')
+			if qty_candles == 0:
+				start_dt = end_dt - timedelta(days=days)
+			else:
+				total_minutes = period_minutes * qty_candles
+				start_dt = end_dt - timedelta(minutes=total_minutes)
+			start = start_dt.strftime('%m/%d/%Y %H:%M:%S')
+
+		start_ts = self.time_conversion(start)
+		end_ts = self.time_conversion(end)
+
+		payload = self._prepare_chart_range_payload(symbol, period_minutes, start_ts, end_ts)
+		response_data = json.loads(self.send(json.dumps(payload)))
+
+		return self._parse_candle_response(response_data, qty_candles)
+
+	def _prepare_chart_range_payload(self, symbol, period, start, end):
+		"""Helper method that prepares candle payload."""
+		return {
 			"command": "getChartRangeRequest",
 			"arguments": {
-				"info": chart_range_info_record
+				"info": {
+					"symbol": symbol,
+					"period": period,
+					"start": start,
+					"end": end,
+					"ticks": 0
+				}
 			}
 		}
-		candles_json = json.dumps(candles)
-		result = self.send(candles_json)
-		result = json.loads(result)
-		candles=[]
-		candle={}
-		qty=len(result["returnData"]["rateInfos"])
-		candle["digits"]=result["returnData"]["digits"]
-		if qty_candles==0:
-			candle["qty_candles"]=qty
-		else:
-			candle["qty_candles"]=qty_candles
-		candles.append(candle)
-		if qty_candles==0:
-			start_qty = 0
-		else:
-			start_qty = qty-qty_candles
-		if qty==0:
-			start_qty=0
-		for i in range(start_qty, qty):
-			candle={}
-			candle["datetime"]=str(result["returnData"]["rateInfos"][i]["ctmString"])
-			candle["open"]=result["returnData"]["rateInfos"][i]["open"]
-			candle["close"]=result["returnData"]["rateInfos"][i]["close"]
-			candle["high"]=result["returnData"]["rateInfos"][i]["high"]
-			candle["low"]=result["returnData"]["rateInfos"][i]["low"]
-			candles.append(candle)
-		if len(candles)==1:
-			return False
-		return candles
 
 	def get_server_time(self):
 		"""Method that runs command getSeverTime.
