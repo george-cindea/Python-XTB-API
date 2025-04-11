@@ -113,7 +113,7 @@ class XTB:
 		start_timestamp = self.get_server_time() - self.to_milliseconds(
 			days=days,
 			hours=hours,
-			minutes=minutes
+			minutes=total_minutes
 		)
 
 		payload = self._prepare_candle_payload(symbol, period_minutes, start_timestamp)
