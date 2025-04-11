@@ -75,108 +75,74 @@ class XTB:
 		result = json.loads(result)
 		return result
 
-	def get_candles(self, period, symbol, days=0, hours=0, minutes=0, qty_candles=0):
-		"""Method that gets all candles data for the ticker and period requested.
+	def get_candles(self, period: str, symbol: str, timeframe: dict = None, qty_candles: int = 0):
+		"""Get candle data for a symbol and specific period.
 
 		Args:
-			period - what is the period you want data for
-				LIMITS:
-				PERIOD_M1 --- <0-1) month, i.e. one month time
-				PERIOD_M30 --- <1-7) month, six months time
-				PERIOD_H4 --- <7-13) month, six months time
-				PERIOD_D1 --- 13 month, and earlier on
-				##############################################
-				PERIOD_M1	1	1 minute
-				PERIOD_M5	5	5 minutes
-				PERIOD_M15	15	15 minutes
-				PERIOD_M30	30	30 minutes
-				PERIOD_H1	60	60 minutes (1 hour)
-				PERIOD_H4	240	240 minutes (4 hours)
-				PERIOD_D1	1440	1440 minutes (1 day)
-				PERIOD_W1	10080	10080 minutes (1 week)
-				PERIOD_MN1	43200	43200 minutes (30 days)
-				##############################################
-				close		Value of close price (shift from open price)
-				ctm			Candle start time in CET / CEST time zone (see Daylight Saving Time)
-				ctmString	String representation of the 'ctm' field
-				high		Highest value in the given period (shift from open price)
-				low			Lowest value in the given period (shift from open price)
-				open		Open price (in base currency * 10 to the power of digits)
-				vol			Volume in lots
-			symbol - ticker you want data for
+			period (str): Timeframe string line 'M1', 'H1', 'D1', etc.
+			symbol (str): Ticker/Symbol to retrieve candles for.
+			timeframe (dict): Optional. Dict with keys 'days', 'hours', 'minutes'. Time window offset.
+			qty_candles (int): Desired number of candles. If 0, fetch all.
 
-		Returns: candles
+		Returns: list[dict] or bool: Candle data, or False if none found.
 		"""
-		if period=="M1":
-			minutes+=qty_candles
-			period=1
-		elif period=="M5":
-			minutes+=qty_candles*5
-			period=5
-		elif period=="M15":
-			minutes+=qty_candles*15
-			period=15
-		elif period=="M30":
-			minutes+=qty_candles*30
-			period=30
-		elif period=="H1":
-			minutes+=qty_candles*60
-			period=60
-		elif period=="H4":
-			minutes+=qty_candles*240
-			period=240
-		elif period=="D1":
-			minutes+=qty_candles*1440
-			period=1440
-		elif period=="W1":
-			minutes+=qty_candles*10080
-			period=10080
-		elif period=="MN1":
-			minutes+=qty_candles*43200
-			period=43200
-		if qty_candles!=0:
-			minutes = minutes*2
-		start = self.get_server_time() - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
-		chart_last_info_record ={
-			"period": period,
-			"start": start,
-			"symbol": symbol
+
+		timeframe = timeframe or {}
+		days = timeframe.get("days", 0)
+		hours = timeframe.get("hours", 0)
+		minutes = timeframe.get("minutes", 0)
+		period_map = {
+			"M1": 1,
+			"M5": 5,
+			"M15": 15,
+			"M30": 30,
+			"H1": 60,
+			"H4": 240,
+			"D1": 1440,
+			"W1": 10080,
+			"MN1": 43200,
 		}
-		candles ={
+
+		if period not in period_map:
+			raise ValueError(f"Unsupported period: {period}")
+
+		period_minutes = period_map[period]
+		minutes += qty_candles * period_minutes * 2 if qty_candles else minutes += period_minutes
+
+		start_timestamp = self.get_server_time() - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
+
+		payload = {
 			"command": "getChartLastRequest",
 			"arguments": {
-				"info": chart_last_info_record
+				"info": {
+					"period": period_minutes,
+					"start": start_timestamp,
+					"symbol": symbol
+				}
 			}
 		}
-		candles_json = json.dumps(candles)
-		result = self.send(candles_json)
-		result = json.loads(result)
-		candles=[]
-		candle={}
-		qty=len(result["returnData"]["rateInfos"])
-		candle["digits"]=result["returnData"]["digits"]
-		if qty_candles==0:
-			candle["qty_candles"]=qty
-		else:
-			candle["qty_candles"]=qty_candles
-		candles.append(candle)
-		if qty_candles==0:
-			start_qty = 0
-		else:
-			start_qty = qty-qty_candles
-		if qty==0:
-			start_qty=0
 
-		for i in range(start_qty, qty):
-			candle={}
-			candle["datetime"]=result["returnData"]["rateInfos"][i]["ctmString"]
-			candle["open"]=result["returnData"]["rateInfos"][i]["open"]
-			candle["close"]=result["returnData"]["rateInfos"][i]["close"]
-			candle["high"]=result["returnData"]["rateInfos"][i]["high"]
-			candle["low"]=result["returnData"]["rateInfos"][i]["low"]
-			candles.append(candle)
-		if len(candles)==1:
+		response = self.send(json.dumps(payload))
+		response_data = json.loads(response)
+
+		rate_infos = response_data.get("returnData", {}).get("rateInfos", [])
+		digits = response_data.get("returnData", {}).get("digits", 5)
+
+		if not rate_infos:
 			return False
+
+		candles = [{"digits": digits, "qty_candles": qty_candles or len(rate_infos)}]
+		start_index = max(0, len(rate_infos) - qty_candles) if qty_candles else 0
+
+		for rate in rate_infos[start_index:]:
+			candles.append({
+				"datetime": rate["ctmString"],
+				"open": rate["open"],
+				"close": rate["close"],
+				"high": rate["high"],
+				"low": rate["low"]
+			})
+
 		return candles
 
 	def get_candles_range(self, period, symbol, start=0, end=0, days=0, qty_candles=0):
@@ -536,56 +502,6 @@ class XTB:
 		result = self.send(ping_json)
 		result = json.loads(result)
 		return result["status"]
-
-	################ EXCEL ####################
-
-	def candles_to_excel(self, candles, address, name):
-		"""Method that writes candle data to excel.
-
-		Returns: True if success, False if not.
-		"""
-		self.exec_start = self.get_time()
-		if not candles: # test for falsiness
-			print("Error: No Candles!")
-			#error
-			return False
-		try:
-			wb = openpyxl.Workbook()
-			wspace = wb.active
-			wspace.title = "Candles"
-			for pages in candles:
-				wspace.append(list(pages.values()))
-			wb.save(address+name)
-			#success
-			return True
-		except:
-			#error
-			return False
-
-	def get_candles_from_excel(self, address, name):
-		"""Method that gets candles data from excel.
-		"""
-		temp1=[]
-		wb = openpyxl.load_workbook(address+name)
-		wsp = wb.active
-		for rows in wb.active.iter_rows(min_row=0, max_row=1000000):
-			temp={}
-			i=0
-			for cell in rows:
-				if i==0 and cell.value is None:
-					return temp1
-				if i==0 and cell.value is not None:
-					temp["datetime"] = cell.value
-				elif i==1 and cell.value is not None:
-					temp["open"] = cell.value
-				elif i==2 and cell.value is not None:
-					temp["close"] = cell.value
-				elif i==3 and cell.value is not None:
-					temp["high"] = cell.value
-				elif i==4 and cell.value is not None:
-					temp["low"] = cell.value
-				i+=1
-			temp1.append(temp)
 
 	################ TIME/DATE/CONVERSIONS ####################
 
