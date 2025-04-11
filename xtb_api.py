@@ -156,7 +156,7 @@ class XTB:
 
 		return candles
 
-	def get_candles_range(self, period: str, symbol: str, timefram: dict = None, qty_candles: int = 0):
+	def get_candles_range(self, period: str, symbol: str, timeframe: dict = None, qty_candles: int = 0):
 		"""Get candle data for a symbol between a start and end period.
 
 		Args:
