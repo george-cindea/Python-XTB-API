@@ -566,7 +566,7 @@ class XTB:
 		try:
 			self.ws=websocket.create_connection("wss://ws.xapi.pro/demo")
 			return True
-		except (websocket.WebSocketException, socket.error) as e:
+		except (websocket.WebSocketException) as e:
 			print(f"Websocket connection failed: {e}")
 			return False
 
@@ -580,7 +580,7 @@ class XTB:
 		try:
 			self.ws.close()
 			return True
-		except (websocket.WebSocketException, socket.error) as e:
+		except (websocket.WebSocketException) as e:
 			print(f"Websocket disconnection failed: {e}")
 			return False
 
