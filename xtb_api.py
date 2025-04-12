@@ -441,33 +441,43 @@ class XTB:
 		status = result["returnData"]["requestStatus"]
 		return status
 
-	def get_history(self, start=0, end=0, days=0, hours=0, minutes=0):
-		"""Method that runs command getTradesHistory.
-
-		Returns: history
+	def get_history(self, start=0, end=0, time_range=None):
 		"""
-		if start!=0:
+		Retrieve historical trade data for a given time range.
+
+		Args:
+			start (int or str): Optional start timestamp or foormatted string.
+			end (int or str): Optional end timestamp or formatted string.
+			time_range (dict): Optional dictionary with 'days', 'hours', and 'minutes'.
+
+		Returns:
+			dict: Trade history data.
+		"""
+		time_range = time_range or {}
+
+		#Convert string-formatted times to timestamps
+		if start != 0:
 			start = self.time_conversion(start)
-		if end!=0:
+		if end != 0:
 			end = self.time_conversion(end)
 
-		if days!=0 or hours!=0 or minutes!=0:
-			if end==0:
+		#If time range is provided but start/end are not fully set
+		if any(time_range.values()):
+			if end == 0:
 				end = self.get_server_time()
-			start = end - self.to_milliseconds(days=days, hours=hours, minutes=minutes)
+			start = end - self.to_milliseconds(
+				days=time_range.get("days", 0),
+				hours=time_range.get("hours", 0),
+				minutes=time_range.get("minutes", 0)
+			)
 
-		history ={
+		payload = {
 			"command": "getTradesHistory",
-			"arguments": {
-					"end": end,
-					"start": start
-			}
+			"arguments": {"start": start, "end": end}
 		}
-		history_json = json.dumps(history)
-		result = self.send(history_json)
-		result = json.loads(result)
-		history = result["returnData"]
-		return history
+
+		response = json.loads(self.send(json.dumps(payload)))
+		return response["returnData"]
 
 	def ping(self):
 		"""Method that runs command ping.
