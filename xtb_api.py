@@ -353,90 +353,71 @@ class XTB:
 		symbol = result["returnData"]
 		return symbol
 
-	def make_trade(
-		self,
-		symbol,
-		cmd,
-		transaction_type,
-		volume,
-		comment="",
-		order=0,
-		sl=0,
-		tp=0,
-		days=0,
-		hours=0,
-		minutes=0
-	):
+	def make_trade(self, symbol, trade_settings, time_settings, comment=""):
 		"""
-		Method that runs command tradeTransaction in order to make a trade request.
+		Execute a trade via tradeTransaction command.
+
 		Args:
-			format trade_trans_info:
-				cmd				Number		Operation code
-				customComment	String		The value the customer may provide in order to retrieve it later.
-				expiration		Time		Pending order expiration time
-				offset			Number		Trailing offset
-				order			Number		0 or position number for closing/modifications
-				price			Float		Trade price
-				sl				Float		Stop loss
-				symbol			String		Trade symbol
-				tp				Floati		Take profit
-				type			Number		Trade transaction type
-				volume			Float		Trade volume
+			symbol (str): The symbol to trade.
+			trade_settings (dict): {
+				'cmd': int,
+				'transaction_type': int,
+				'volume': float,
+				'order': int,
+				'stop_loss': float,
+				'take_profit': float
+			}
+			time_settings (dict): {
+				'days': int,
+				'hours': int,
+				'minutes': int
+			}
+			comment (str): Optional trade comment.
 
-			values cmd:
-				BUY			0	buy
-				SELL		1	sell
-				BUY_LIMIT	2	buy limit
-				SELL_LIMIT	3	sell limit
-				BUY_STOP	4	buy stop
-				SELL_STOP	5	sell stop
-				BALANCE		6	Read only. Used in getTradesHistory  for manager's deposit/withdrawal operations
-								(profit>0 for deposit, profit<0 for withdrawal).
-				CREDIT		7	Read only
-
-			values transaction_type:
-				OPEN		0	order open, used for opening orders
-				PENDING		1	order pending, only used in the streaming getTrades  command
-				CLOSE		2	order close
-				MODIFY		3	order modify, only used in the tradeTransaction  command
-				DELETE		4	order delete, only used in the tradeTransaction  command
+		Returns:
+			tuple[bool, int]: Success, Order ID if success else 0)
 		"""
-		price = self.get_candles("M1",symbol,qty_candles=1)
-		price = price[1]["open"]+price[1]["close"]
+		price = self._get_latest_price(symbol)
+		expiration = self._calculate_expiration(time_settings)
 
-		delay = self.to_milliseconds(days=days, hours=hours, minutes=minutes)
-		if delay==0:
-			expiration = self.get_server_time() + self.to_milliseconds(minutes=1)
-		else:
-			expiration = self.get_server_time() + delay
-
-		trade_trans_info = {
-			"cmd": cmd,
-			"customComment": comment,
+		trade_info = {
+			"cmd": trade_settings.get("cmd", 0),
+			"type": trade_settings.get("transaction_type", 0),
+			"volume": trade_settings.get("volume", 0.01),
+			"order": trade_settings.get("order", 0),
+			"sl": trade_settings.get("stop_loss", 0),
+			"tp": trade_settings.get("take_profit", 0),
+			"symbol": symbol,
+			"price": price,
 			"expiration": expiration,
 			"offset": -1,
-			"order": order,
-			"price": price,
-			"sl": sl,
-			"symbol": symbol,
-			"tp": tp,
-			"type": transaction_type,
-			"volume": volume
+			"customComment": comment
 		}
-		trade = {
+
+		payload = {
 			"command": "tradeTransaction",
-			"arguments": {
-				"tradeTransInfo": trade_trans_info
-			}
+			"arguments": {"tradeTransInfo": trade_info}
 		}
-		trade_json = json.dumps(trade)
-		result = self.send(trade_json)
-		result = json.loads(result)
-		if result["status"] is True: #if checking for value True
-			#success
-			return True, result["returnData"]["order"]
-		#error
-		return False, 0
+
+		response = json.loads(self.sendjson.dumps(payload)))
+		return (True, response["returnData"]["order"]) if response.get("status") else (False, 0)
+
+	def _get_latest_price(self, symbol):
+		"""Get the latest open and close price from M1 candles."""
+		candles = self.get_candles("M1", symbol, qty_candles=1)
+		if not candles or len(candles) < 2:
+			raise ValueError(f"No price data found for {symbol}")
+		return candles[1]["open"] + candles[1]["close"]
+
+	def _calculate_expiration(self, time_settings):
+		"""Calculate expiration timestamp based on delay settings."""
+		delay_ms = self.to_milliseconds(
+			days=time_settings.get("days", 0),
+			hours=time_settings.get("hours", 0),
+			minutes=time_settings.get("minutes", 0)
+		)
+		default_expiry = self.to_milliseconds(minutes=1)
+		return self.get_server_time() + (delay_ms or default_expiry)
 
 	def check_trade(self, order):
 		"""Method that runs command tradeTransactionStatus.
