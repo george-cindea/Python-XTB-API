@@ -2,7 +2,6 @@
 import json
 from datetime import datetime, timedelta
 import websocket
-import openpyxl
 
 class XTB:
 	"""Class XTB that contains all the methods neccessary to use the api"""
@@ -287,38 +286,53 @@ class XTB:
 		margin = result["returnData"]["margin"]
 		return margin
 
-	def get_profit(self, open_price, close_price, transaction_type, symbol, volume):
-		"""Method that runs command getProfitCalculation.
-		Args:
-			open_price			- open price of the trade
-			close_price			- close price of the trade
-			transaction_type	- buy/sell
-			symbol: ticker
-			volume
-
-		Returns: profit
+	def get_profit(self, prices, cmd_type, symbol, volume):
 		"""
-		if transaction_type==1:
-			#buy
-			cmd = 0
-		else:
-			#sell
-			cmd = 1
-		profit ={
+		Calculate profit from a trade using prices and transaction type.
+		Args:
+			prices (dict): Contains 'open' and 'close' price.
+			cmd_type (str): Trade command, e.g. 'BUY', 'SELL_LIMIT', 'CREDIT'.
+			symbol (str): Ticker symbol.
+			volume (float): Volume of the trade.
+
+		Returns: 
+			float: Calculated profit.
+
+		Raises:
+			ValueError: If cmd_type is invalid or prices are incomplete.
+		"""
+		#Validate prices
+		if "open" not in prices or "close" not in prices:
+			raise ValueError("prices dictionary must contain 'open' and 'close' keys")
+		
+		#CMD name to code mapping
+		cmd_map = {
+			"BUY": 0,
+			"SELL": 1,
+			"BUY_LIMIT": 2,
+			"SELL_LIMIT": 3,
+			"BUY_STOP": 4,
+			"SELL_STOP": 5,
+			"BALANCE": 6,
+			"CREDIT": 7
+		}
+		
+		if cmd_type not in cmd_map:
+			raise ValueError(f"Invalid cmd_type '{cmd_type}'. Must be one of {list(cmd_map.keys())}")
+		
+		payload ={
 			"command": "getProfitCalculation",
 			"arguments": {
-				"closePrice": close_price,
-				"cmd": cmd,
-				"openPrice": open_price,
+				"closePrice": prices["close"],
+				"cmd": cmd_map[cmd_type],
+				"openPrice": prices["open"],
 				"symbol": symbol,
 				"volume": volume
 			}
 		}
-		profit_json = json.dumps(profit)
-		result = self.send(profit_json)
-		result = json.loads(result)
-		profit = result["returnData"]["profit"]
-		return profit
+		
+		result = json.loads(self.send(json.dumps(payload)))
+		return result["returnData"]["profit"]
 
 	def get_symbol(self, symbol):
 		"""Method that runs command getSymbol in order to get all data for a particular ticker.
