@@ -1,6 +1,6 @@
 """A wrapper for the xtb api"""
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import websocket
 
 class XTB:
@@ -557,29 +557,31 @@ class XTB:
 	################ WEBSOCKETS ####################
 
 	def connect(self):
-		"""Method that connects to the websocket.
+		"""
+		Connect to the WebSocket server.
 
-		Returns: True if successful, False if not
+		Returns: 
+			bool: True if connected successfully, False otherwise.
 		"""
 		try:
-			#self.ws=websocket.create_connection("wss://ws.xtb.com/demo")
 			self.ws=websocket.create_connection("wss://ws.xapi.pro/demo")
-			#Success
 			return True
-		except:
-			#Error
+		except (websocket.WebSocketException, socket.error) as e:
+			print(f"Websocket connection failed: {e}")
 			return False
 
 	def disconnect(self):
-		"""Method that disconnects to the websocket.
+		"""
+		Dissconnect from the WebSocket server.
 
-		Returns: True if successful, False if not
+		Returns: 
+			bool: True if disconnected successfully, False otherwise.
 		"""
 		try:
 			self.ws.close()
-			#Success
 			return True
-		except:
+		except (websocket.WebSocketException, socket.error) as e:
+			print(f"Websocket disconnection failed: {e}")
 			return False
 
 	def send(self, msg):
