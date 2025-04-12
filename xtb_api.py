@@ -399,7 +399,7 @@ class XTB:
 			"arguments": {"tradeTransInfo": trade_info}
 		}
 
-		response = json.loads(self.sendjson.dumps(payload)))
+		response = json.loads(self.send(json.dumps(payload)))
 		return (True, response["returnData"]["order"]) if response.get("status") else (False, 0)
 
 	def _get_latest_price(self, symbol):
