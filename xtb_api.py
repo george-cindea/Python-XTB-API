@@ -304,7 +304,7 @@ class XTB:
 		#Validate prices
 		if "open" not in prices or "close" not in prices:
 			raise ValueError("prices dictionary must contain 'open' and 'close' keys")
-		
+
 		#CMD name to code mapping
 		cmd_map = {
 			"BUY": 0,
@@ -316,10 +316,10 @@ class XTB:
 			"BALANCE": 6,
 			"CREDIT": 7
 		}
-		
+
 		if cmd_type not in cmd_map:
 			raise ValueError(f"Invalid cmd_type '{cmd_type}'. Must be one of {list(cmd_map.keys())}")
-		
+
 		payload ={
 			"command": "getProfitCalculation",
 			"arguments": {
@@ -330,7 +330,7 @@ class XTB:
 				"volume": volume
 			}
 		}
-		
+
 		result = json.loads(self.send(json.dumps(payload)))
 		return result["returnData"]["profit"]
 
