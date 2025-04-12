@@ -1,6 +1,6 @@
 """A wrapper for the xtb api"""
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import websocket
 
 class XTB:
@@ -511,26 +511,22 @@ class XTB:
 		milliseconds = (days*24*60*60*1000)+(hours*60*60*1000)+(minutes*60*1000)
 		return milliseconds
 
-	def time_conversion(self, date):
-		"""Method that converts time and date to seconds.
+	def time_conversion(self, date_str):
+		"""Convert a date string to milliseconds since Unix epoch.
 
-		Returns: time
+		Args:
+			date_str (str): A datetime string in '%m/%d/%Y %H:%M:%S' format.
+
+		Returns:
+			int: Milliseconds since 1970-01-01 UTC.
 		"""
-		start = "01/01/1970 00:00:00"
-		start = datetime.strptime(start, '%m/%d/%Y %H:%M:%S')
-		date = datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
-		final_date = date-start
-		temp = str(final_date)
-		temp1, temp2 = temp.split(", ")
-		hours, minutes, seconds = temp2.split(":")
-		days = final_date.days
-		days = int(days)
-		hours = int(hours)
-		hours+=2
-		minutes = int(minutes)
-		seconds = int(seconds)
-		time = (days*24*60*60*1000)+(hours*60*60*1000)+(minutes*60*1000)+(seconds*1000)
-		return time
+		try:
+			dt = datetime.strptime(date_str, '%m/%d/%Y %H:%M:%S')
+			epoch = datetime(1970, 1, 1)
+			delta = dt - epoch
+			return int(delta.total_seconds() * 1000) #Return as milliseconds
+		except ValueError as e:
+			raise ValueError(f"Invalid date format: {date_str}. Expected MM/DD/YYYY HH:MM:SS") from e
 
 	################ CHECKS ####################
 
