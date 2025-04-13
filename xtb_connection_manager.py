@@ -1,4 +1,3 @@
-#xtb_connection_manager.py
 import websocket
 import json
 from datetime import datetime

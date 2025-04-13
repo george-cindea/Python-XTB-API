@@ -6,7 +6,7 @@ class XTBHistory:
 	Class responsible for historical data retrieval from XTB API.
 	Includes candle data and trade history.
 	"""
-	def __init__(self, send.callback):
+	def __init__(self, send_callback):
 		"""
 		Args:
 			send_callback (function): Function to send messages over WebSocket.
@@ -22,7 +22,8 @@ class XTBHistory:
 			timeframe (dict): Optional. Dict with keys 'days', 'hours', 'minutes'. Time window offset.
 			qty_candles (int): Desired number of candles. If 0, fetch all.
 
-		Returns: list[dict] or bool: Candle data, or False if none found.
+		Returns: 
+			list[dict] or bool: Candle data, or False if none found.
 		"""
 
 		timeframe = timeframe or {}
