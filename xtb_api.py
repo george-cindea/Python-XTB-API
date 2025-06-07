@@ -1,7 +1,7 @@
 """A wrapper for the xtb api"""
 from xtb_connection import XTB_connectivity 
 from xtb_utils import XTB_utils
-from xtb_account import XTB_account
+from xtb_account import XtbAccount
 from xtb_market import XTB_market
 from xtb_trade import XTB_trade
 
@@ -16,14 +16,20 @@ class XTB:
 		send_callback = self.connectivity.send_payload
 		self.utils = XTB_utils(send_callback)
 		self.exec_start = self.utils.get_time()
-		self.account = XTB_account(send_callback)
+		self.account = XtbAccount(send_callback)
 		self.market = XTB_market(send_callback)
 		self.trade = XTB_trade(send_callback)
 
 	def start(self):
+		"""Connect and login"""
 		self.connectivity.connect()
 		self.connectivity.login()
 
 	def stop(self):
+		"""Logout and disconnect"""
 		self.connectivity.logout()
 		self.connectivity.disconnect()
+
+	def mockup_1(self):
+		"""Mockup method"""
+		pass
