@@ -1,14 +1,14 @@
 """Module containing trading facing methods"""
 import json
-from xtb_utils import XtbUtils
 
 class XtbTrade:
 	"""Class that has methods facing trade"""
-	def __init__(self, send_callback):
+	def __init__(self, send_callback, utils):
 		self.send = send_callback
-		self.get_server_time = XtbUtils.get_server_time(self)
-		self.to_milliseconds = XtbUtils.to_milliseconds(self)
-		self.time_conversion = XtbUtils.time_conversion(self)
+		self.utils = utils
+		self.get_server_time = utils.get_server_time(self)
+		self.to_milliseconds = utils.to_milliseconds(self)
+		self.time_conversion = utils.time_conversion(self)
 
 	def get_margin_trade(self, symbol, volume):
 		"""Returns expected margin for given instrument and volume. 
