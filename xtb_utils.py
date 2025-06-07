@@ -1,7 +1,9 @@
+"""Module containing utilities methods"""
 import json
 from datetime import datetime, timedelta
 
-class XTB_utils:
+class XtbUtils:
+	"""Class that has utility methods"""
 	def __init__(self, send_callback):
 		self.send = send_callback
 

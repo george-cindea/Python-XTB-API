@@ -2,8 +2,7 @@
 import json
 
 class XtbAccount:
-	"""Class that hass methods facing the account"""
-
+	"""Class that has methods facing the account"""
 	def __init__(self, send_callback):
 		self.send = send_callback
 

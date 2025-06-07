@@ -1,14 +1,15 @@
+"""Module containing connection facing methods"""
 import json
 import websocket
-from xtb_utils import XTB_utils
+from xtb_utils import XtbUtils
 
-class XTB_connectivity:
-
+class XtbConnectivity:
+	"""Class that has methods facing connection"""
 	def __init__(self, user_id, user_pswd):
 		self.user_id = user_id
 		self.user_pswd = user_pswd
 		self.ws = None
-		self.get_time = XTB_utils.get_time(self)
+		self.get_time = XtbUtils.get_time(self)
 		self.exec_start = self.get_time
 
 	def login(self):

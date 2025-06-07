@@ -1,7 +1,8 @@
+"""Module containing trading facing methods"""
 import json
 
-class XTB_trade:
-
+class XtbTrade:
+	"""Class that has methods facing trade"""
 	def __init__(self, send_callback):
 		self.send = send_callback
 

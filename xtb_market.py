@@ -1,7 +1,8 @@
+"""Module containing market facing methods"""
 import json
 
-class XTB_market:
-
+class XtbMarket:
+	"""Class that has methods facing market"""
 	def __init__(self, send_callback):
 		self.send = send_callback
 
