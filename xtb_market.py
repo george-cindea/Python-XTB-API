@@ -1,10 +1,15 @@
 """Module containing market facing methods"""
 import json
+from xtb_utils import XtbUtils
 
 class XtbMarket:
 	"""Class that has methods facing market"""
 	def __init__(self, send_callback):
 		self.send = send_callback
+		self.get_server_time = XtbUtils.get_server_time(self)
+		self.to_milliseconds = XtbUtils.to_milliseconds(self)
+		self.time_conversion = XtbUtils.time_conversion(self)
+		self.get_time = XtbUtils.get_time(self)
 
 	def get_all_symbols(self):
 		"""
@@ -20,8 +25,11 @@ class XtbMarket:
 		return result
 
 	def get_chart_last_request(self, period, symbol, timeframe = None, qty_candles = 0):
-		"""Returns chart info,from start date to the current time. If the chosen period of "CHART_LAST_INFO_RECORD" is greater than 1 minute, 
-		the last candle returned by the API can change until the end of the period (the candle isbeing automatically updated every minute).
+		"""
+		Returns chart info,from start date to the current time. 
+		If the chosen period of "CHART_LAST_INFO_RECORD" is greater than 1 minute, 
+		the last candle returned by the API can change until the end of 
+		the period (the candle isbeing automatically updated every minute).
 
 		Args:
 			period (str): Timeframe string line 'M1', 'H1', 'D1', etc.
