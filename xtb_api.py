@@ -17,7 +17,7 @@ class XTB:
 		self.utils = XtbUtils(send_callback)
 		self.exec_start = self.utils.get_time()
 		self.account = XtbAccount(send_callback)
-		self.market = XtbMarket(send_callback)
+		self.market = XtbMarket(send_callback, utils)
 		self.trade = XtbTrade(send_callback)
 
 	def start(self):

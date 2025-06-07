@@ -5,12 +5,13 @@ from xtb_utils import XtbUtils
 
 class XtbMarket:
 	"""Class that has methods facing market"""
-	def __init__(self, send_callback):
+	def __init__(self, send_callback, utils):
 		self.send = send_callback
-		self.get_server_time = XtbUtils.get_server_time(self)
-		self.to_milliseconds = XtbUtils.to_milliseconds(self)
-		self.time_conversion = XtbUtils.time_conversion(self)
-		self.get_time = XtbUtils.get_time(self)
+		self.utils = utils
+		self.get_server_time = utils.get_server_time(self)
+		self.to_milliseconds = utils.to_milliseconds(self)
+		self.time_conversion = utils.time_conversion(self)
+		self.get_time = utils.get_time(self)
 
 	def get_all_symbols(self):
 		"""
