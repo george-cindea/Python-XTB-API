@@ -1,5 +1,6 @@
 """Module containing market facing methods"""
 import json
+from datetime import datetime, timedelta
 from xtb_utils import XtbUtils
 
 class XtbMarket:

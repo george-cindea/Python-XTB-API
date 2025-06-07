@@ -1,6 +1,6 @@
 """Module containing utilities methods"""
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class XtbUtils:
 	"""Class that has utility methods"""
@@ -9,9 +9,12 @@ class XtbUtils:
 
 	def ping(self):
 		"""
-		Regularly calling this function is enough to refresh the internal state of all thecomponents in the system. 
-		It is recommended that any application that does not execute othercommands, should call this command at least once every 10 minutes. 
-		Please note that the streamingcounterpart of this function is combination of "ping" and "getKeepAlive".
+		Regularly calling this function is enough to refresh the internal 
+		state of all thecomponents in the system. 
+		It is recommended that any application that does not execute other commands, 
+		should call this command at least once every 10 minutes. 
+		Please note that the streamingcounterpart of this function is 
+		combination of "ping" and "getKeepAlive".
 
 		Returns: 
 			bool: True if the server is responsive
