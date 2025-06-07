@@ -1,6 +1,4 @@
 """A wrapper for the xtb api"""
-import json
-from datetime import datetime, timedelta
 from xtb_connection import XTB_connectivity 
 from xtb_utils import XTB_utils
 from xtb_account import XTB_account

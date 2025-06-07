@@ -5,7 +5,7 @@ class XTB_trade:
 	def __init__(self, send_callback):
 		self.send = send_callback
 
-def get_margin_trade(self, symbol, volume):
+	def get_margin_trade(self, symbol, volume):
 		"""Returns expected margin for given instrument and volume. 
 		The value is calculated asexpected margin value, and therefore might not be perfectly accurate.
 
