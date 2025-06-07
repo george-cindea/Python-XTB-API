@@ -25,7 +25,7 @@ class XtbMarket:
 		result = json.loads(self.send(json.dumps(payload)))
 		return result
 
-	def get_chart_last_request(self, period, symbol, timeframe = None, qty_candles = 0):
+	def get_candles(self, period, symbol, timeframe = None, qty_candles = 0):
 		"""
 		Returns chart info,from start date to the current time. 
 		If the chosen period of "CHART_LAST_INFO_RECORD" is greater than 1 minute, 
