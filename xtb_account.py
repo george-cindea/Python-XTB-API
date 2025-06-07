@@ -1,3 +1,4 @@
+"""Module containing account facing methods"""
 import json
 
 class XtbAccount:
@@ -22,8 +23,6 @@ class XtbAccount:
 
 	def mockup_1(self):
 		"""Mockup method"""
-		pass
 
 	def mockup_2(self):
 		"""Mockup method"""
-		pass

@@ -1,4 +1,4 @@
-"""A wrapper for the xtb api"""
+"""Wrapper for the xtb api"""
 from xtb_connection import XTB_connectivity 
 from xtb_utils import XTB_utils
 from xtb_account import XtbAccount
