@@ -1,10 +1,14 @@
 """Module containing trading facing methods"""
 import json
+from xtb_utils import XtbUtils
 
 class XtbTrade:
 	"""Class that has methods facing trade"""
 	def __init__(self, send_callback):
 		self.send = send_callback
+		self.get_server_time = XtbUtils.get_server_time(self)
+		self.to_milliseconds = XtbUtils.to_milliseconds(self)
+		self.time_conversion = XtbUtils.time_conversion(self)
 
 	def get_margin_trade(self, symbol, volume):
 		"""Returns expected margin for given instrument and volume. 
@@ -32,7 +36,8 @@ class XtbTrade:
 		"""
 		Calculates estimated profit for given deal data.
 		Should be used for calculator-like apps only. 
-		Profit for opened transactions should be taken from server, due to higher precision of servercalculation.
+		Profit for opened transactions should be taken from server, due to 
+		higher precision of servercalculation.
 
 		Args:
 			prices (dict): Contains 'open' and 'close' price.
@@ -147,7 +152,8 @@ class XtbTrade:
 		return self.get_server_time() + (delay_ms or default_expiry)
 
 	def check_trade(self, order):
-		"""Please note that this function can be usually replaced by its streaming equivalent "getTradeStatus" which is the preferred way of retrieving transaction status data.
+		"""Please note that this function can be usually replaced by its streaming equivalent 
+		"getTradeStatus" which is the preferred way of retrieving transaction status data.
 		Returns current transaction status. 
 		At any time of transaction processing client might check the status of transaction on server side. 
 		In order to do that client must provide unique order taken from "tradeTransaction" invocation.
@@ -171,7 +177,8 @@ class XtbTrade:
 
 	def get_trades_history(self, start=0, end=0, time_range=None):
 		"""
-		Please note that this function can be usually replaced by its streaming equivalent "getTrades" which is the preferred way of retrieving trades data.
+		Please note that this function can be usually replaced by its streaming equivalent 
+		"getTrades" which is the preferred way of retrieving trades data.
 		Returns array of user's trades which were closed within specified period of time.
 
 		Args:
