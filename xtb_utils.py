@@ -29,7 +29,8 @@ class XtbUtils:
 			print(f"Ping command failed: {e}")
 			return False
 
-	def get_time(self):
+	@staticmethod
+	def get_time():
 		"""
 		Get current local time as datetime object.
 
@@ -82,8 +83,7 @@ class XtbUtils:
 		candles = self.get_candles("M1", symbol, qty_candles=1)
 		return len(candles) > 1
 
-	@staticmethod
-	def get_server_time(data_type = "int"):
+	def get_server_time(self, data_type="int"):
 		"""
 		Returns current time on trading server.
 
@@ -97,6 +97,4 @@ class XtbUtils:
 		result = json.loads(self.send(json.dumps(payload)))
 		server_time_int = result["returnData"]["time"]
 		server_time_str = result["returnData"]["timeString"]
-		if data_type == "int":
-			return server_time_int
-		return server_time_str
+		return server_time_int if data_type == "int" else server_time_str

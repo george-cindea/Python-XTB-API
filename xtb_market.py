@@ -45,7 +45,7 @@ class XtbMarket:
 			qty_candles = qty_candles
 		)
 
-		start_timestamp = XtbUtils.get_server_time() - XtbUtils.to_milliseconds(
+		start_timestamp = XtbUtils.get_server_time(self.send) - XtbUtils.to_milliseconds(
 			days=timeframe.get("days", 0),
 			hours=timeframe.get("hours", 0),
 			minutes=minutes
@@ -157,7 +157,7 @@ class XtbMarket:
 		days = timeframe.get("days", 0)
 
 		if end == 0:
-			end_dt = self.get_time()
+			end_dt = XtbUtils.get_time()
 			end_str = end_dt.strftime('%m/%d/%Y %H:%M:%S')
 		else:
 			end_str = end

@@ -1,14 +1,11 @@
 """Module containing trading facing methods"""
 import json
+from xtb_utils import XtbUtils
 
 class XtbTrade:
 	"""Class that has methods facing trade"""
-	def __init__(self, send_callback, utils):
+	def __init__(self, send_callback):
 		self.send = send_callback
-		self.utils = utils
-		self.get_server_time = utils.get_server_time(self)
-		self.to_milliseconds = utils.to_milliseconds(self)
-		self.time_conversion = utils.time_conversion(self)
 
 	def get_margin_trade(self, symbol, volume):
 		"""Returns expected margin for given instrument and volume. 
@@ -143,13 +140,13 @@ class XtbTrade:
 
 	def _calculate_expiration(self, time_settings):
 		"""Calculate expiration timestamp based on delay settings."""
-		delay_ms = self.to_milliseconds(
+		delay_ms = XtbUtils.to_milliseconds(
 			days=time_settings.get("days", 0),
 			hours=time_settings.get("hours", 0),
 			minutes=time_settings.get("minutes", 0)
 		)
-		default_expiry = self.to_milliseconds(minutes=1)
-		return self.get_server_time() + (delay_ms or default_expiry)
+		default_expiry = XtbUtils.to_milliseconds(minutes=1)
+		return XtbUtils.get_server_time(self.send) + (delay_ms or default_expiry)
 
 	def check_trade(self, order):
 		"""Please note that this function can be usually replaced by its streaming equivalent 
@@ -193,15 +190,15 @@ class XtbTrade:
 
 		#Convert string-formatted times to timestamps
 		if start != 0:
-			start = self.time_conversion(start)
+			start = XtbUtils.time_conversion(start)
 		if end != 0:
-			end = self.time_conversion(end)
+			end = XtbUtils.time_conversion(end)
 
 		#If time range is provided but start/end are not fully set
 		if any(time_range.values()):
 			if end == 0:
-				end = self.get_server_time()
-			start = end - self.to_milliseconds(
+				end = XtbUtils.get_server_time(self.send)
+			start = end - XtbUtils.to_milliseconds(
 				days=time_range.get("days", 0),
 				hours=time_range.get("hours", 0),
 				minutes=time_range.get("minutes", 0)

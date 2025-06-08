@@ -9,7 +9,7 @@ class XtbConnectivity:
 		self.user_id = user_id
 		self.user_pswd = user_pswd
 		self.ws = None
-		self.get_time = XtbUtils.get_time(self)
+		self.get_time = XtbUtils.get_time()
 		self.exec_start = self.get_time
 
 	def login(self):

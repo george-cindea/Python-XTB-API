@@ -13,12 +13,12 @@ class XTB:
 		self.user_id = user_id
 		self.user_pswd = user_pswd
 		self.connectivity = XtbConnectivity(self.user_id, self.user_pswd)
-		send_callback = self.connectivity.send_payload
-		self.utils = XtbUtils(send_callback)
-		self.exec_start = self.utils.get_time()
-		self.account = XtbAccount(send_callback)
-		self.market = XtbMarket(send_callback)
-		self.trade = XtbTrade(send_callback, self.utils)
+		self.send_callback = self.connectivity.send_payload
+		self.utils = XtbUtils(self.send_callback)
+		self.exec_start = XtbUtils.get_time()
+		self.account = XtbAccount(self.send_callback)
+		self.market = XtbMarket(self.send_callback)
+		self.trade = XtbTrade(self.send_callback)
 
 	def start(self):
 		"""Connect and login"""
