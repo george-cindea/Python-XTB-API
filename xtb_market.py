@@ -1,16 +1,12 @@
 """Module containing market facing methods"""
 import json
 from datetime import datetime, timedelta
+from xtb_utils import XtbUtils
 
 class XtbMarket:
 	"""Class that has methods facing market"""
 	def __init__(self, send_callback, utils):
 		self.send = send_callback
-		self.utils = utils
-		self.get_server_time = utils.get_server_time(self)
-		self.to_milliseconds = utils.to_milliseconds(self)
-		self.time_conversion = utils.time_conversion(self)
-		self.get_time = utils.get_time(self)
 
 	def get_all_symbols(self):
 		"""
@@ -49,7 +45,7 @@ class XtbMarket:
 			qty_candles = qty_candles
 		)
 
-		start_timestamp = self.get_server_time() - self.to_milliseconds(
+		start_timestamp = XtbUtils.get_server_time() - XtbUtils.to_milliseconds(
 			days=timeframe.get("days", 0),
 			hours=timeframe.get("hours", 0),
 			minutes=minutes
@@ -130,8 +126,8 @@ class XtbMarket:
 		payload = self._prepare_chart_range_payload(
 			symbol = symbol,
 			period = period_minutes,
-			start = self.time_conversion(start),
-			end = self.time_conversion(end)
+			start = XtbUtils.time_conversion(start),
+			end = XtbUtils.time_conversion(end)
 		)
 
 		response_data = json.loads(self.send(json.dumps(payload)))
@@ -177,7 +173,6 @@ class XtbMarket:
 			start_str = start
 
 		return start_str, end_str
-
 
 	def _prepare_chart_range_payload(self, symbol, period, start, end):
 		"""Helper method that prepares candle payload."""
