@@ -5,7 +5,7 @@ from xtb_utils import XtbUtils
 
 class XtbMarket:
 	"""Class that has methods facing market"""
-	def __init__(self, send_callback, utils):
+	def __init__(self, send_callback):
 		self.send = send_callback
 
 	def get_all_symbols(self):

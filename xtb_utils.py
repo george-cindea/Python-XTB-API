@@ -39,7 +39,8 @@ class XtbUtils:
 		now = datetime.today()
 		return datetime.strptime(now.strftime('%m/%d/%Y %H:%M:%S%f'), '%m/%d/%Y %H:%M:%S%f')
 
-	def to_milliseconds(self, days=0, hours=0, minutes=0):
+	@staticmethod
+	def to_milliseconds(days=0, hours=0, minutes=0):
 		"""
 		Convert time duration to miliseconds.
 
@@ -49,7 +50,8 @@ class XtbUtils:
 		milliseconds = (days*24*60*60*1000)+(hours*60*60*1000)+(minutes*60*1000)
 		return milliseconds
 
-	def time_conversion(self, date_str):
+	@staticmethod
+	def time_conversion(date_str):
 		"""
 		Convert date string to milliseconds since Unix epoch.
 
@@ -80,7 +82,8 @@ class XtbUtils:
 		candles = self.get_candles("M1", symbol, qty_candles=1)
 		return len(candles) > 1
 
-	def get_server_time(self, data_type = "int"):
+	@staticmethod
+	def get_server_time(data_type = "int"):
 		"""
 		Returns current time on trading server.
 
