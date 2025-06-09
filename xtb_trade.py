@@ -134,7 +134,7 @@ class XtbTrade:
 
 	def _get_latest_price(self, symbol):
 		"""Get the latest open and close price from M1 candles."""
-		candles = market.get_candles("M1", symbol, qty_candles=1)
+		candles = self.market.get_candles("M1", symbol, qty_candles=1)
 		if not candles or len(candles) < 2:
 			raise ValueError(f"No price data found for {symbol}")
 		return candles[1]["open"] + candles[1]["close"]
