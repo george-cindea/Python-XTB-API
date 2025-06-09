@@ -10,9 +10,7 @@ class XTB:
 	__version__ = "2.0"
 
 	def __init__(self, user_id, user_pswd):
-		self.user_id = user_id
-		self.user_pswd = user_pswd
-		self.connectivity = XtbConnectivity(self.user_id, self.user_pswd)
+		self.connectivity = XtbConnectivity(user_id, user_pswd)
 		self.send_callback = self.connectivity.send_payload
 		self.utils = XtbUtils(self.send_callback)
 		self.exec_start = XtbUtils.get_time()
