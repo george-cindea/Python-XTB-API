@@ -70,19 +70,6 @@ class XtbUtils:
 		except ValueError as e:
 			raise ValueError(f"Invalid date format: {date_str}. Expected MM/DD/YYYY HH:MM:SS") from e
 
-	def is_open(self, symbol):
-		"""
-		Check if market is open for a symbol by testing candle data.
-
-		Args:
-			symbol (str) - Ticker symbol
-
-		Returns: 
-			bool: True if market is open, False otherwise.
-		"""
-		candles = self.get_candles("M1", symbol, qty_candles=1)
-		return len(candles) > 1
-
 	def get_server_time(self, data_type="int"):
 		"""
 		Returns current time on trading server.

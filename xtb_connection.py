@@ -79,7 +79,6 @@ class XtbConnectivity:
 
 		Returns: result from websocket
 		"""
-		self.is_on()
 		self.ws.send(msg)
 		result = self.ws.recv()
 		return result+"\n"

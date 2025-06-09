@@ -18,7 +18,7 @@ class XTB:
 		self.exec_start = XtbUtils.get_time()
 		self.account = XtbAccount(self.send_callback)
 		self.market = XtbMarket(self.send_callback)
-		self.trade = XtbTrade(self.send_callback)
+		self.trade = XtbTrade(self.send_callback, self.market)
 
 	def start(self):
 		"""Connect and login"""
