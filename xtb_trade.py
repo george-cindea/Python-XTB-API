@@ -11,6 +11,7 @@ class XtbTrade:
 	def get_margin_trade(self, symbol, volume):
 		"""Returns expected margin for given instrument and volume. 
 		The value is calculated asexpected margin value, and therefore might not be perfectly accurate.
+		This only works with CFDs (symbols ending in .<country>_4, not with STCs.
 
 		Args: 
 			symbol (str): The trading symbol
@@ -85,7 +86,9 @@ class XtbTrade:
 	def make_trade(self, symbol, trade_settings, time_settings, comment=""):
 		"""
 		Starts trade transaction. 
-		tradeTransaction sends main transaction information to theserver.
+		tradeTransaction sends main transaction information to the server.
+		(XTB disabled API trading so altough this method works ok and upon
+		execution you get an order id, XTB server will never create the order) 
 
 		Args:
 			symbol (str): The symbol to trade.
@@ -141,13 +144,13 @@ class XtbTrade:
 
 	def _calculate_expiration(self, time_settings):
 		"""Calculate expiration timestamp based on delay settings."""
-		delay_ms = XtbUtils.to_milliseconds(
+		delay_ms = XtbUtils(self.send).to_milliseconds(
 			days=time_settings.get("days", 0),
 			hours=time_settings.get("hours", 0),
 			minutes=time_settings.get("minutes", 0)
 		)
-		default_expiry = XtbUtils.to_milliseconds(minutes=1)
-		return XtbUtils.get_server_time(self.send) + (delay_ms or default_expiry)
+		default_expiry = XtbUtils(self.send).to_milliseconds(minutes=1)
+		return XtbUtils(self.send).get_server_time() + (delay_ms or default_expiry)
 
 	def check_trade(self, order):
 		"""Please note that this function can be usually replaced by its streaming equivalent 
@@ -198,8 +201,8 @@ class XtbTrade:
 		#If time range is provided but start/end are not fully set
 		if any(time_range.values()):
 			if end == 0:
-				end = XtbUtils.get_server_time(self.send)
-			start = end - XtbUtils.to_milliseconds(
+				end = XtbUtils(self.send).get_server_time()
+			start = end - XtbUtils(self.send).to_milliseconds(
 				days=time_range.get("days", 0),
 				hours=time_range.get("hours", 0),
 				minutes=time_range.get("minutes", 0)

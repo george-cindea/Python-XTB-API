@@ -21,7 +21,7 @@ class XtbMarket:
 		result = json.loads(self.send(json.dumps(payload)))
 		return result
 
-	def get_candles(self, period, symbol, timeframe = None, qty_candles = 0):
+	def get_candles(self, period, symbol, timeframe = None, qty_candles = 1):
 		"""
 		Returns chart info,from start date to the current time. 
 		If the chosen period of "CHART_LAST_INFO_RECORD" is greater than 1 minute, 
@@ -45,7 +45,7 @@ class XtbMarket:
 			qty_candles = qty_candles
 		)
 
-		start_timestamp = XtbUtils.get_server_time(self.send) - XtbUtils.to_milliseconds(
+		start_timestamp = XtbUtils(self.send).get_server_time() - XtbUtils.to_milliseconds(
 			days=timeframe.get("days", 0),
 			hours=timeframe.get("hours", 0),
 			minutes=minutes
@@ -94,16 +94,19 @@ class XtbMarket:
 
 		for rate in rate_infos[start_index:]:
 			candles.append({
-				"datetime": rate["ctmString"],
+				"datetime_str": rate["ctmString"],
+				"datetime_int": rate["ctm"],
 				"open": rate["open"],
 				"close": rate["close"],
 				"high": rate["high"],
-				"low": rate["low"]
+				"low": rate["low"],
+				"vol": rate["vol"]
 			})
 
 		return candles
 
-	def get_candles_range(self, period, symbol, timeframe = None, qty_candles = 0):
+	#this doesn't work for now, I have to figure out why
+	def get_candles_range(self, period, symbol, timeframe = None, qty_candles = 1):
 		"""Returns chart info withdata between given start and end dates.
 
 		Args:
@@ -115,13 +118,16 @@ class XtbMarket:
 		Returns: list[dict] or bool: Candle data, or False if none found.
 		"""
 		timeframe = timeframe or {}
+		print(f"timeframe: {timeframe}")
 		period_minutes = self._resolve_period_minutes(period)
+		print(f"period_minutes: {period_minutes}")
 
 		start, end = self._resolve_time_range(
 			timeframe = timeframe,
 			period_minutes = period_minutes,
 			qty_candles = qty_candles
 		)
+		print(f"start and end of timeframe: {start} and {end}")
 
 		payload = self._prepare_chart_range_payload(
 			symbol = symbol,
@@ -129,8 +135,10 @@ class XtbMarket:
 			start = XtbUtils.time_conversion(start),
 			end = XtbUtils.time_conversion(end)
 		)
+		print(f"payload: {payload}")
 
 		response_data = json.loads(self.send(json.dumps(payload)))
+		print(f"response_data: {response_data}")
 		return self._parse_candle_response(response_data, qty_candles)
 
 	def _resolve_period_minutes(self, period):
