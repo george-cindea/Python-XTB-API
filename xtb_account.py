@@ -14,7 +14,7 @@ class XtbAccount:
 			float: Account balance
 		"""
 		payload = {
-			"command": "getBalance"
+			"command": "getMarginLevel"
 		}
 		result = json.loads(self.send(json.dumps(payload)))
 		balance = result["returnData"]["balance"]
